@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/ui/screens/forgot_password/verify_pin_screen.dart';
 import 'package:task_manager/ui/screens/login_register/login_screen.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
@@ -12,10 +11,14 @@ class ResetPasswordScreen extends StatefulWidget {
 }
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+
+
   final TextEditingController _passwordEController = TextEditingController();
   final TextEditingController _confirmPasswordEController =
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +26,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       body: ScreenBackground(
         child: SingleChildScrollView(
           child: Padding(
-            key: _formKey,
             padding: const EdgeInsets.all(32.0),
             child: Form(
               key: _formKey,
@@ -48,23 +50,43 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   const SizedBox(
                     height: 16,
                   ),
-                  TextFormField(
-                    controller: _passwordEController,
-                    decoration: InputDecoration(
-                      hintText: 'Password',
-                    ),
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  TextFormField(
-                    controller: _confirmPasswordEController,
-                    decoration: InputDecoration(
-                      hintText: 'Confirm New Password',
-                    ),
-                  ),
-                  const SizedBox(
+
+              TextFormField(
+              controller: _passwordEController,
+              obscureText: _isObscure, // Control password visibility
+              decoration: InputDecoration(
+                hintText: 'Password',
+                suffixIcon: IconButton(
+                  icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      _isObscure = !_isObscure; // Toggle visibility
+                    });
+                  },
+                ),
+              ),
+              textInputAction: TextInputAction.next,
+            ),
+
+
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _confirmPasswordEController,
+              obscureText: _isObscure, // Apply the same toggle
+              decoration: InputDecoration(
+                hintText: 'Confirm New Password',
+                suffixIcon: IconButton(
+                  icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      _isObscure = !_isObscure; // Toggle visibility
+                    });
+                  },
+                ),
+              ),
+            ),
+
+            const SizedBox(
                     height: 16,
                   ),
                   ElevatedButton(

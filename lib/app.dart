@@ -54,7 +54,7 @@ class _TaskManagerAppState extends State<TaskManagerApp> {
           ),
 
           bodyLarge: TextStyle(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w300,
           ),
         ),
 

@@ -1,8 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:task_manager/ui/screens/login_register/login_screen.dart';
-import 'package:task_manager/ui/utils/assets_path.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -20,6 +18,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordEController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: ScreenBackground(
         child: SingleChildScrollView(
           child: Padding(
-            key: _formKey,
             padding: const EdgeInsets.all(32.0),
             child: Form(
               key: _formKey,
@@ -79,9 +77,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   TextFormField(
                     controller: _passwordEController,
+                    obscureText: _isObscure, // Control password visibility
                     decoration: InputDecoration(
                       hintText: 'Password',
+                      suffixIcon: IconButton(
+                        icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure; // Toggle visibility
+                          });
+                        },
+                      ),
                     ),
+                    textInputAction: TextInputAction.next,
                   ),
                   const SizedBox(
                     height: 16,
@@ -134,7 +142,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _onTapSignUpButton(){
-
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (pre) => false);
   }
   
   @override

@@ -1,9 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:task_manager/ui/screens/forgot_password/verify_email_screen.dart';
 import 'package:task_manager/ui/screens/login_register/register_screen.dart';
-import 'package:task_manager/ui/utils/assets_path.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,9 +13,10 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
-  TextEditingController _emailEController = TextEditingController();
-  TextEditingController _passwordEController = TextEditingController();
+  final TextEditingController _emailEController = TextEditingController();
+  final TextEditingController _passwordEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +24,6 @@ class _LoginScreenState extends State<LoginScreen> {
       body: ScreenBackground(
         child: SingleChildScrollView(
           child: Padding(
-            key: _formKey,
             padding: const EdgeInsets.all(32.0),
             child: Form(
               key: _formKey,
@@ -55,9 +53,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextFormField(
                     controller: _passwordEController,
+                    obscureText: _isObscure, // Control password visibility
                     decoration: InputDecoration(
                       hintText: 'Password',
+                      suffixIcon: IconButton(
+                        icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure; // Toggle visibility
+                          });
+                        },
+                      ),
                     ),
+                    textInputAction: TextInputAction.next,
                   ),
                   const SizedBox(
                     height: 16,

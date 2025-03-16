@@ -22,7 +22,6 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
       body: ScreenBackground(
         child: SingleChildScrollView(
           child: Padding(
-            key: _formKey,
             padding: const EdgeInsets.all(32.0),
             child: Form(
               key: _formKey,
@@ -54,13 +53,16 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                     keyboardType: TextInputType.number,
                     pinTheme: PinTheme(
                       shape: PinCodeFieldShape.box,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(5),
                       fieldHeight: 50,
-                      fieldWidth: 40,
+                      fieldWidth: 45,
                       activeFillColor: Colors.white,
-                      activeColor: Colors.white,
+                      activeColor: Colors.blue, // Change active border color
+                      selectedColor: Colors.green, // Change selected border color
+                      inactiveColor: Colors.grey, // Change inactive border color
                       selectedFillColor: Colors.white,
                       inactiveFillColor: Colors.white,
+                      borderWidth: 1, // Set border thickness
                     ),
                     animationDuration: Duration(milliseconds: 300),
                     backgroundColor: Colors.transparent,
@@ -68,6 +70,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                     controller: _pinEController,
                     appContext: context,
                   ),
+
                   const SizedBox(
                     height: 16,
                   ),

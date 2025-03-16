@@ -12,7 +12,7 @@ class VerifyEmailScreen extends StatefulWidget {
 
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
-  TextEditingController _emailEController = TextEditingController();
+  final TextEditingController _emailEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -21,7 +21,6 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       body: ScreenBackground(
         child: SingleChildScrollView(
           child: Padding(
-            key: _formKey,
             padding: const EdgeInsets.all(32.0),
             child: Form(
               key: _formKey,
