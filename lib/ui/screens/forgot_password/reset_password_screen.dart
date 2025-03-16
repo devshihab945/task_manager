@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:task_manager/ui/screens/forgot_password/verify_pin_screen.dart';
-import 'package:task_manager/ui/screens/login_screen.dart';
+import 'package:task_manager/ui/screens/login_register/login_screen.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
 class ResetPasswordScreen extends StatefulWidget {

@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:task_manager/ui/screens/forgot_password/verify_email_screen.dart';
-import 'package:task_manager/ui/screens/register_screen.dart';
+import 'package:task_manager/ui/screens/login_register/register_screen.dart';
 import 'package:task_manager/ui/utils/assets_path.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
