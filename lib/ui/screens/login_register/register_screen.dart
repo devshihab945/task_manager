@@ -96,11 +96,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   ElevatedButton(
                       onPressed: _onTapSignUpButton,
-                      child: Icon(
-                        Icons.arrow_circle_right_outlined,
-                        color: Colors.white,
-                        size: 24,
-                      )),
+                      child: Text('Register', style: TextStyle(color: Colors.white),)
+                  ),
                   SizedBox(height: 32),
                   Center(
                     child: RichText(
