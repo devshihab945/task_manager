@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/ui/screens/nav_task/add_new_task_screen.dart';
 import 'package:task_manager/ui/widgets/summary_card.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
 
@@ -13,8 +14,8 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton:
-          FloatingActionButton(onPressed: () {}, child: const Icon(Icons.add)),
+      floatingActionButton: FloatingActionButton(
+          onPressed: _onTapAddNewTask, child: const Icon(Icons.add)),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -26,7 +27,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
               primary: false,
               shrinkWrap: true,
               itemBuilder: (context, index) {
-                return const TaskCard(status: 'New', color: Colors.blue);
+                return const TaskCard(
+                  taskStatus: TaskStatus.sNew,
+                );
               },
               separatorBuilder: (context, index) => const SizedBox(
                 height: 8,
@@ -34,6 +37,15 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _onTapAddNewTask() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddNewTaskScreen(),
       ),
     );
   }

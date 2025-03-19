@@ -16,7 +16,7 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
       body: ListView.separated(
         itemCount: 5,
         itemBuilder: (context, index) {
-          return const TaskCard( status: 'Complete', color: Colors.green,);
+          return const TaskCard(taskStatus: TaskStatus.completed,);
         },
         separatorBuilder: (context, index) => const SizedBox(
           height: 8,
