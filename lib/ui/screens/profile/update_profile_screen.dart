@@ -155,13 +155,11 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: CircleAvatar(
-                          child: Image.file(
-                            _selectedImage!,
-                            height: 50,
-                            width: 50,
-                            fit: BoxFit.cover,
-                          ),
+                        child: Image.file(
+                          _selectedImage!,
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
                         ),
                       ),
                       SingleChildScrollView(
