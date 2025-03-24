@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/home/md-shihab-mia/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/md-shihab-mia/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/md-shihab-mia/Work \u0026 Study/Learning/Flutter/FlutterPractice/task_manager/android/app/.cxx/Debug/22s6h221/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/md-shihab-mia/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/md-shihab-mia/Work \u0026 Study/Learning/Flutter/FlutterPractice/task_manager/android/app/.cxx/Debug/22s6h221/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
