@@ -299,6 +299,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         _lastNameEController.text = userData['lastName'];
         _mobileEController.text = userData['mobile'];
         _passwordEController.text = userData['password'];
+
+        _saveUserInfo(response); // Reload updated profile
       });
     } else {
       showSnackBarMessage(context, "Failed to load profile!", 2, isError: true);
@@ -331,7 +333,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     if (response.isSuccess) {
       showSnackBarMessage(context, "Profile Updated Successfully!", 2, isError: false);
       _loadUserProfile(); // Reload updated profile
-      _saveUserInfo(response); // Reload updated profile
+
     } else {
       showSnackBarMessage(context, response.errorMessage.toString(), 2, isError: true);
     }
@@ -359,6 +361,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     setState(() {
       _savedName = name;
       _savedMail = email;
+      _loadUserInfo();
     });
   }
 
