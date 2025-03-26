@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task_manager/ui/screens/login_register/login_screen.dart';
 import 'package:task_manager/ui/screens/profile/update_profile_screen.dart';
 
 class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
   const TMAppBar({
     super.key,
     this.fromProfileScreen,
+    required this.name,
+    required this.email,
   });
 
   final bool? fromProfileScreen;
+  final String name; // Add name as a parameter
+  final String email; // Add email as a parameter
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +40,12 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Md Shihab Mia',
+                    name, // Use dynamic name
                     style: textTheme.bodyLarge?.copyWith(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'business.shihab@gmail.com',
+                    email, // Use dynamic email
                     style: textTheme.bodySmall?.copyWith(
                       color: Colors.white,
                     ),
@@ -48,7 +54,9 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  _onTapLogout(context);
+                },
                 icon: const Icon(
                   Icons.logout,
                   color: Colors.red,
@@ -67,6 +75,29 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
+
+  void _onTapLogout(BuildContext context) async {
+    // Clear all SharedPreferences data
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    // Optionally, show a SnackBar or a confirmation message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Logged out successfully'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+
+    // Navigate to the LoginScreen
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
+    );
+  }
+
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
