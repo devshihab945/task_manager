@@ -8,4 +8,6 @@ class Urls {
   //-----------
   // static const String RecoverVerifyEmailUrl  = '$_baseUrl/RecoverVerifyEmail/$';
 
+  // task
+  static const String createTaskUrl = '$_baseUrl/createTask';
 }
