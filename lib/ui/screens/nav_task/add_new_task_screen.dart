@@ -38,8 +38,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: TMAppBar(
-        name: _savedName ?? 'Loading...',
-        email: _savedMail ?? 'Loading...',
       ),
       body: ScreenBackground(
         child: SingleChildScrollView(

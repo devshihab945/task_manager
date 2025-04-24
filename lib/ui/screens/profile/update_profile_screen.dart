@@ -1,9 +1,10 @@
+import 'dart:convert';
+
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_manager/data/service/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/controllers/auth_controller.dart';
 import 'package:task_manager/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/snack_bar_message.dart';
@@ -27,35 +28,23 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isObscure = true;
   File? _selectedImage;
+  XFile? _pickedImage;
   String? _selectedImageName;
 
   bool _updateProfileInProgress = false;
-
-  String? _authToken;
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
-    _loadUserInfo();
   }
 
-  String? _savedName;
-  String? _savedMail;
-
-  Future<void> _loadUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    _savedName = prefs.getString('name');
-    _savedMail = prefs.getString('email');
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: TMAppBar(
         fromProfileScreen: true,
-        name: _savedName ?? 'Loading...',
-        email: _savedMail ?? 'Loading...',
       ),
       body: ScreenBackground(
         child: SingleChildScrollView(
@@ -63,7 +52,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
             padding: const EdgeInsets.all(32.0),
             child: Form(
               key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
+              // autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -257,15 +246,14 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   }
 
   void _onTapPhotoPicker() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile =
-        await picker.pickImage(source: ImageSource.gallery);
+    ImagePicker picker = ImagePicker();
+    XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-        _selectedImageName = pickedFile.name;
-      });
+    if (image != null) {
+      _selectedImage = File(image.path);
+      _pickedImage = image;
+      _selectedImageName = image.name;
+      setState(() {});
     } else {}
   }
 
@@ -276,41 +264,17 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   }
 
   Future<void> _loadUserProfile() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    _authToken = prefs.getString('auth_token');
-
-    Logger().i('1st check : $_authToken');
-
-    if (_authToken == null) {
-      showSnackBarMessage(context, "User not authenticated!", 2, isError: true);
-      return;
-    }
-
-    NetworkResponse response = await NetworkClient.getRequest(
-      url: Urls.profileDetailsUrl,
-      headers: {"token": "$_authToken"},
-    );
-
-    if (response.isSuccess) {
-      var userData = response.data?['data'][0]; // Extract user details
-      setState(() {
-        _emailEController.text = userData['email'];
-        _firstNameEController.text = userData['firstName'];
-        _lastNameEController.text = userData['lastName'];
-        _mobileEController.text = userData['mobile'];
-        _passwordEController.text = userData['password'];
-
-        _saveUserInfo(response); // Reload updated profile
+     setState(() {
+        _emailEController.text = AuthController.userModel?.email ?? '';
+        _firstNameEController.text = AuthController.userModel?.firstName ?? '';
+        _lastNameEController.text = AuthController.userModel?.lastName ?? '';
+        _mobileEController.text = AuthController.userModel?.mobile ?? '';
+        _passwordEController.text = '';
       });
-    } else {
-      showSnackBarMessage(context, "Failed to load profile!", 2, isError: true);
-    }
-
   }
 
 
   Future<void> _updateUserProfile() async {
-    if (_authToken == null) return;
 
     setState(() {
       _updateProfileInProgress = true;
@@ -321,18 +285,27 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       "firstName": _firstNameEController.text.trim(),
       "lastName": _lastNameEController.text.trim(),
       "mobile": _mobileEController.text.trim(),
-      "password": _passwordEController.text,
     };
+
+    if(_passwordEController.text.isNotEmpty){
+      requestBody['password'] = _passwordEController.text;
+    }
+
+    if(_pickedImage != null){
+      List<int> imageBytes = await _pickedImage!.readAsBytes();
+      String base64Image = base64Encode(imageBytes);
+      requestBody['photo'] = base64Image;
+    }
 
     NetworkResponse response = await NetworkClient.postRequest(
       url: Urls.profileUpdateUrl,
       body: requestBody,
-      headers: {"token": "$_authToken"},
     );
 
     if (response.isSuccess) {
+      _passwordEController.clear();
       showSnackBarMessage(context, "Profile Updated Successfully!", 2, isError: false);
-      _loadUserProfile(); // Reload updated profile
+      _loadUserProfile();
 
     } else {
       showSnackBarMessage(context, response.errorMessage.toString(), 2, isError: true);
@@ -340,28 +313,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
     setState(() {
       _updateProfileInProgress = false;
-    });
-  }
-
-  _saveUserInfo(NetworkResponse response) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    var userData = response.data?['data'][0]; // Extract user details
-    String email = userData['email'];
-    String firstName = userData['firstName'];
-    String lastName = userData['lastName'];
-
-    String name = '$firstName $lastName';
-
-    // Save user details in SharedPreferences
-    await prefs.setString('name', name);
-    await prefs.setString('email', email);
-
-    // Update state to reflect changes in UI
-    setState(() {
-      _savedName = name;
-      _savedMail = email;
-      _loadUserInfo();
     });
   }
 

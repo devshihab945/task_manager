@@ -1,19 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:task_manager/ui/controllers/auth_controller.dart';
 import 'package:task_manager/ui/screens/login_register/login_screen.dart';
 import 'package:task_manager/ui/screens/profile/update_profile_screen.dart';
+import 'package:task_manager/ui/widgets/snack_bar_message.dart';
 
 class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
   const TMAppBar({
     super.key,
     this.fromProfileScreen,
-    required this.name,
-    required this.email,
   });
 
   final bool? fromProfileScreen;
-  final String name; // Add name as a parameter
-  final String email; // Add email as a parameter
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,14 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(),
+            CircleAvatar(
+              radius: 16,
+              backgroundImage: _shouldShowImage(AuthController.userModel?.photo)
+                  ? MemoryImage(
+                      base64Decode(AuthController.userModel?.photo ?? ''),
+                    )
+                  : null,
+            ),
             SizedBox(
               width: 8,
             ),
@@ -40,12 +46,14 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name, // Use dynamic name
+                    AuthController.userModel?.fullName ?? '',
+                    // Use dynamic name
                     style: textTheme.bodyLarge?.copyWith(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    email, // Use dynamic email
+                    AuthController.userModel?.email ?? 'Unknown',
+                    // Use dynamic email
                     style: textTheme.bodySmall?.copyWith(
                       color: Colors.white,
                     ),
@@ -67,6 +75,10 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+  bool _shouldShowImage(String? photo) {
+    return photo != null && photo.isNotEmpty;
+  }
+
   void _onTapProfile(BuildContext context) {
     Navigator.push(
       context,
@@ -77,27 +89,18 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   void _onTapLogout(BuildContext context) async {
-    // Clear all SharedPreferences data
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await AuthController.clearUserInformation();
 
-    // Optionally, show a SnackBar or a confirmation message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Logged out successfully'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    showSnackBarMessage(context, "Logged out successfully", 2, isError: false);
 
     // Navigate to the LoginScreen
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const LoginScreen(),
-      ),
-    );
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(),
+        ),
+        (predicate) => false);
   }
-
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);

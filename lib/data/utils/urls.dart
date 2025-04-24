@@ -6,16 +6,6 @@ class Urls {
   static const String profileDetailsUrl = '$_baseUrl/ProfileDetails';
 
   //-----------
-  static const String forgotPasswordUrl = '$_baseUrl/ForgotPassword';
-  static const String verifyEmailUrl = '$_baseUrl/VerifyEmail';
-  static const String resetPasswordUrl = '$_baseUrl/ResetPassword';
-  static const String changePasswordUrl = '$_baseUrl/ChangePassword';
-  static const String logoutUrl = '$_baseUrl/Logout';
-  static const String refreshTokenUrl = '$_baseUrl/RefreshToken';
-  static const String taskUrl = '$_baseUrl/Task';
-  static const String taskStatusUrl = '$_baseUrl/TaskStatus';
-  static const String taskCategoryUrl = '$_baseUrl/TaskCategory';
-  static const String taskPriorityUrl = '$_baseUrl/TaskPriority';
-
+  // static const String RecoverVerifyEmailUrl  = '$_baseUrl/RecoverVerifyEmail/$';
 
 }

@@ -2,8 +2,10 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:task_manager/data/models/login_model.dart';
 import 'package:task_manager/data/service/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/controllers/auth_controller.dart';
 import 'package:task_manager/ui/screens/forgot_password/verify_email_screen.dart';
 import 'package:task_manager/ui/screens/login_register/register_screen.dart';
 import 'package:task_manager/ui/widgets/centered_circular_progress_indicator.dart';
@@ -11,7 +13,6 @@ import 'package:task_manager/ui/widgets/main_bottom_nav_screen.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/snack_bar_message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,7 +22,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final TextEditingController _emailEController = TextEditingController();
   final TextEditingController _passwordEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -71,11 +71,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextFormField(
                     controller: _passwordEController,
-                    obscureText: _isObscure, // Control password visibility
+                    obscureText: _isObscure,
+                    // Control password visibility
                     decoration: InputDecoration(
                       hintText: 'Password',
                       suffixIcon: IconButton(
-                        icon: Icon(_isObscure ? Icons.visibility : Icons.visibility_off),
+                        icon: Icon(_isObscure
+                            ? Icons.visibility
+                            : Icons.visibility_off),
                         onPressed: () {
                           setState(() {
                             _isObscure = !_isObscure; // Toggle visibility
@@ -168,32 +171,25 @@ class _LoginScreenState extends State<LoginScreen> {
         _loginInProgress = false;
       });
 
-      // Extract token and save to SharedPreferences
-      String? token = response.data?['token']; // Token key ঠিক আছে কি না চেক করো
-
-      if (token != null) {
-        Logger().i('1st check : $token');
-
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', token);
-
-        String? savedToken = prefs.getString('auth_token');
-        Logger().i('2nd check : $savedToken');
-      }
+      // TODO: Save token to SharedPreferences
+      LoginModel loginModel = LoginModel.fromJson(response.data!);
+      AuthController.saveUserInformation(
+          loginModel.token, loginModel.userModel);
 
       showSnackBarMessage(context, 'Login Successful', 2, isError: false);
 
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const MainBottomNavScreen()),
-            (pre) => false,
+        (pre) => false,
       );
     } else {
       setState(() {
         _loginInProgress = false;
       });
 
-      showSnackBarMessage(context, response.errorMessage.toString(), 2, isError: true);
+      showSnackBarMessage(context, response.errorMessage.toString(), 2,
+          isError: true);
     }
   }
 
@@ -221,6 +217,4 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordEController.dispose();
     super.dispose();
   }
-
-
 }
