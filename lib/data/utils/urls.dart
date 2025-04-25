@@ -5,8 +5,10 @@ class Urls {
   static const String profileUpdateUrl = '$_baseUrl/ProfileUpdate';
   static const String profileDetailsUrl = '$_baseUrl/ProfileDetails';
 
-  //-----------
-  // static const String RecoverVerifyEmailUrl  = '$_baseUrl/RecoverVerifyEmail/$';
+  // forgot password
+  static String recoverVerifyEmailUrl(String email)  => '$_baseUrl/RecoverVerifyEmail/$email';
+  static String recoverVerifyOtpUrl(String email, String otp)  => '$_baseUrl/RecoverVerifyOtp/$email/$otp';
+  static String recoverResetPasswordUrl = '$_baseUrl/RecoverResetPassword';
 
   // task
   static const String createTaskUrl = '$_baseUrl/createTask';

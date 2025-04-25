@@ -1,12 +1,20 @@
+import 'dart:math';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:task_manager/data/service/network_client.dart';
+import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/screens/forgot_password/reset_password_screen.dart';
 import 'package:task_manager/ui/screens/login_register/login_screen.dart';
+import 'package:task_manager/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
+import 'package:task_manager/ui/widgets/snack_bar_message.dart';
 
 class VerifyPinScreen extends StatefulWidget {
-  const VerifyPinScreen({super.key});
+  const VerifyPinScreen({super.key, required this.email});
+
+  final String email;
 
   @override
   State<VerifyPinScreen> createState() => _VerifyPinScreenState();
@@ -15,6 +23,8 @@ class VerifyPinScreen extends StatefulWidget {
 class _VerifyPinScreenState extends State<VerifyPinScreen> {
   final TextEditingController _pinEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  bool _inProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +67,12 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                       fieldHeight: 50,
                       fieldWidth: 45,
                       activeFillColor: Colors.white,
-                      activeColor: Colors.blue, // Change active border color
-                      selectedColor: Colors.green, // Change selected border color
-                      inactiveColor: Colors.grey, // Change inactive border color
+                      activeColor: Colors.blue,
+                      // Change active border color
+                      selectedColor: Colors.green,
+                      // Change selected border color
+                      inactiveColor: Colors.grey,
+                      // Change inactive border color
                       selectedFillColor: Colors.white,
                       inactiveFillColor: Colors.white,
                       borderWidth: 1, // Set border thickness
@@ -69,17 +82,30 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                     enableActiveFill: true,
                     controller: _pinEController,
                     appContext: context,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'PIN is required';
+                      } else if (value.length < 6) {
+                        return 'Enter all 6 digits';
+                      } else if (!RegExp(r'^\d{6}$').hasMatch(value)) {
+                        return 'Invalid PIN';
+                      }
+                      return null;
+                    },
                   ),
-
                   const SizedBox(
                     height: 16,
                   ),
-                  ElevatedButton(
-                      onPressed: _onTapSubmitButton,
-                      child: Text(
-                        'Verify',
-                        style: TextStyle(color: Colors.white),
-                      )),
+                  Visibility(
+                    visible: _inProgress == false,
+                    replacement: const CenteredCircularProgressIndicator(),
+                    child: ElevatedButton(
+                        onPressed: _onTapSubmitButton,
+                        child: Text(
+                          'Verify OTP',
+                          style: TextStyle(color: Colors.white),
+                        )),
+                  ),
                   SizedBox(height: 32),
                   Center(
                     child: Column(
@@ -115,9 +141,11 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   }
 
   void _onTapSubmitButton() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) =>const ResetPasswordScreen()));
-
+    if (_formKey.currentState!.validate()) {
+      String otp = _pinEController.text.trim();
+      String email = widget.email;
+      _verifyOtp(email, otp);
+    }
   }
 
   void _onTapSignInButton() {
@@ -125,6 +153,33 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
         (pre) => false);
+  }
+
+  Future<void> _verifyOtp(String email, String otp) async {
+    setState(() => _inProgress = true);
+
+    final NetworkResponse response = await NetworkClient.getRequest(
+        url: Urls.recoverVerifyOtpUrl(email, otp));
+
+    if (response.isSuccess) {
+      _pinEController.clear();
+
+      showSnackBarMessage(context, 'OTP verification successful!', 1);
+
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ResetPasswordScreen(
+                    email: email,
+                    otp: otp,
+                  )),
+          (pre) => false);
+    } else {
+      showSnackBarMessage(context, 'OTP verification failed!', 1,
+          isError: true);
+    }
+
+    setState(() => _inProgress = false);
   }
 
   @override

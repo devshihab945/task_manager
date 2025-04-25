@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/data/service/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
@@ -51,8 +52,10 @@ class _TaskCardState extends State<TaskCard> {
               widget.taskModel.description,
               style: textTheme.bodyLarge,
             ),
-            // TODO: format date with Dateformatter (initl)
-            Text('Date: ${widget.taskModel.createdDate}'),
+            // TODO: format date with Date formatter (intl)
+            Text(
+              'Date: ${widget.taskModel.createdDate.isNotEmpty ? DateFormat.yMd().add_jm().format(DateTime.parse(widget.taskModel.createdDate)) : 'No date'}',
+            ),
             Row(
               children: [
                 Chip(
@@ -90,7 +93,6 @@ class _TaskCardState extends State<TaskCard> {
                     ],
                   ),
                 ),
-
               ],
             )
           ],
@@ -170,7 +172,7 @@ class _TaskCardState extends State<TaskCard> {
         });
   }
 
-  void _popDialog(){
+  void _popDialog() {
     Navigator.pop(context);
   }
 
@@ -185,29 +187,26 @@ class _TaskCardState extends State<TaskCard> {
     if (response.isSuccess) {
       widget.refreshList();
     } else {
-      showSnackBarMessage(context, response.errorMessage.toString(), 1, isError: true);
+      showSnackBarMessage(context, response.errorMessage.toString(), 1,
+          isError: true);
     }
 
     setState(() => _inProgress = false);
-
   }
-
 
   Future<void> _deleteTask(String id) async {
     setState(() => _inProgress = true);
 
-    final NetworkResponse response = await NetworkClient.getRequest(
-        url: Urls.deleteTaskUrl(id));
+    final NetworkResponse response =
+        await NetworkClient.getRequest(url: Urls.deleteTaskUrl(id));
 
     if (response.isSuccess) {
       widget.refreshList();
     } else {
-      showSnackBarMessage(context, response.errorMessage.toString(), 1, isError: true);
+      showSnackBarMessage(context, response.errorMessage.toString(), 1,
+          isError: true);
     }
 
     setState(() => _inProgress = false);
-
   }
-
-
 }

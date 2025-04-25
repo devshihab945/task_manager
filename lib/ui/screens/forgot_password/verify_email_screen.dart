@@ -1,7 +1,12 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/service/network_client.dart';
+import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/screens/forgot_password/verify_pin_screen.dart';
+import 'package:task_manager/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
+import 'package:task_manager/ui/widgets/snack_bar_message.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -11,9 +16,9 @@ class VerifyEmailScreen extends StatefulWidget {
 }
 
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
-
   final TextEditingController _emailEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _inProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +40,13 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 4),
-
                   Text(
                     'A 6 digit verification code has been sent to your email address.',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(color: Colors.grey),
                   ),
-
                   const SizedBox(
                     height: 16,
                   ),
@@ -53,23 +57,32 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                     ),
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.emailAddress,
+                    validator: (String? value) {
+                      String email = value?.trim() ?? '';
+                      if (EmailValidator.validate(email) == false) {
+                        return 'Enter a valid email';
+                      }
+                      return null;
+                    },
                   ),
-
                   const SizedBox(
                     height: 16,
                   ),
-                  ElevatedButton(
-                      onPressed: _onTapSubmitButton,
-                      child: Icon(
-                        Icons.arrow_circle_right_outlined,
-                        color: Colors.white,
-                        size: 24,
-                      )),
+                  Visibility(
+                    visible: _inProgress == false,
+                    replacement: const CenteredCircularProgressIndicator(),
+                    child: ElevatedButton(
+                        onPressed: _onTapSubmitButton,
+                        child: Icon(
+                          Icons.arrow_circle_right_outlined,
+                          color: Colors.white,
+                          size: 24,
+                        )),
+                  ),
                   SizedBox(height: 32),
                   Center(
                     child: Column(
                       children: [
-
                         RichText(
                           text: TextSpan(
                               style: TextStyle(
@@ -105,8 +118,34 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   }
 
   void _onTapSubmitButton() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => VerifyPinScreen()));
+    if (_formKey.currentState!.validate()) {
+      String email = _emailEController.text.trim();
+      _sendOtpIntoMail(email);
+    }
+  }
+
+  Future<void> _sendOtpIntoMail(String email) async {
+    setState(() => _inProgress = true);
+
+    final NetworkResponse response =
+        await NetworkClient.getRequest(url: Urls.recoverVerifyEmailUrl(email));
+
+    if (response.isSuccess) {
+      showSnackBarMessage(context, 'OTP sent successfully', 1);
+
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => VerifyPinScreen(
+                    email: email,
+                  )),
+          (pre) => false);
+    } else {
+      showSnackBarMessage(context, response.errorMessage.toString(), 1,
+          isError: true);
+    }
+
+    setState(() => _inProgress = false);
   }
 
   @override
@@ -114,5 +153,4 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     _emailEController.dispose();
     super.dispose();
   }
-
 }
