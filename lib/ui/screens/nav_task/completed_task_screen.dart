@@ -38,6 +38,7 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
             return TaskCard(
               taskStatus: TaskStatus.cancelled,
               taskModel: _completedTaskList[index],
+              refreshList: _getAllCompletdTaskList,
             );
           },
           separatorBuilder: (context, index) => const SizedBox(

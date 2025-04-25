@@ -15,7 +15,6 @@ class ProgressTaskScreen extends StatefulWidget {
 }
 
 class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
-
   bool _getProgressTaskInProgress = false;
   List<TaskModel> _progressTaskList = [];
 
@@ -28,7 +27,6 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Visibility(
         visible: _getProgressTaskInProgress == false,
         replacement: const CenteredCircularProgressIndicator(),
@@ -38,6 +36,9 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
             return TaskCard(
               taskStatus: TaskStatus.progress,
               taskModel: _progressTaskList[index],
+              refreshList: () {
+                _getAllProgressTaskList();
+              },
             );
           },
           separatorBuilder: (context, index) => const SizedBox(
@@ -45,16 +46,14 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
           ),
         ),
       ),
-
-
-
     );
   }
 
   Future<void> _getAllProgressTaskList() async {
     setState(() => _getProgressTaskInProgress = true);
 
-    final response = await NetworkClient.getRequest(url: Urls.progressTaskListUrl);
+    final response =
+        await NetworkClient.getRequest(url: Urls.progressTaskListUrl);
 
     if (response.isSuccess) {
       final data = TaskListModel.fromJson(response.data ?? {});
@@ -66,5 +65,4 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
 
     setState(() => _getProgressTaskInProgress = false);
   }
-
 }

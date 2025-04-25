@@ -94,6 +94,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         itemBuilder: (_, index) => TaskCard(
           taskStatus: TaskStatus.sNew,
           taskModel: _newTaskList[index],
+          refreshList: () {
+            _getAllNewTaskList();
+          },
         ),
         separatorBuilder: (_, __) => const SizedBox(height: 8),
       ),
