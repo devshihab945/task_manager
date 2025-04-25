@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/models/task_list_model.dart';
+import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/data/models/task_status_count.dart';
 import 'package:task_manager/data/models/task_status_count_list_model.dart';
 import 'package:task_manager/data/service/network_client.dart';
@@ -19,10 +21,14 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   bool _isLoading = false;
   List<TaskStatusCountModel> _statusCounts = [];
 
+  bool _getNewTasksInProgress = false;
+  List<TaskModel> _newTaskList = [];
+
   @override
   void initState() {
     super.initState();
     _fetchTaskStatusCounts();
+    _getAllNewTaskList();
   }
 
   @override
@@ -35,7 +41,10 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildSummarySection(),
+            Visibility(
+                visible: _isLoading == false,
+                replacement: const Center(child: CircularProgressIndicator()),
+                child: _buildSummarySection()),
             const SizedBox(height: 8),
             _buildTaskList(),
           ],
@@ -70,14 +79,24 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   }
 
   Widget _buildTaskList() {
-    return ListView.separated(
-      itemCount: 5,
-      // Replace with dynamic list length when available
-      primary: false,
-      shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemBuilder: (_, index) => const TaskCard(taskStatus: TaskStatus.sNew),
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
+    return Visibility(
+      visible: _getNewTasksInProgress == false,
+      replacement: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      child: ListView.separated(
+        itemCount: _newTaskList.length,
+        // Replace with dynamic list length when available
+        primary: false,
+        shrinkWrap: true,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemBuilder: (_, index) => TaskCard(
+          taskStatus: TaskStatus.sNew,
+          taskModel: _newTaskList[index],
+        ),
+        separatorBuilder: (_, __) => const SizedBox(height: 8),
+      ),
     );
   }
 
@@ -96,5 +115,21 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     }
 
     setState(() => _isLoading = false);
+  }
+
+  Future<void> _getAllNewTaskList() async {
+    setState(() => _getNewTasksInProgress = true);
+
+    final response = await NetworkClient.getRequest(url: Urls.newTaskListUrl);
+
+    if (response.isSuccess) {
+      final parsed = TaskListModel.fromJson(response.data ?? {});
+      _newTaskList = parsed.taskList;
+    } else {
+      showSnackBarMessage(context, response.errorMessage.toString(), 1,
+          isError: true);
+    }
+
+    setState(() => _getNewTasksInProgress = false);
   }
 }
