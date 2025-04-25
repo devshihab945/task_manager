@@ -120,15 +120,12 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
     setState(() => _isSubmitting = false);
 
     if (response.isSuccess) {
+
       _clearFields();
       showSnackBarMessage(context, 'Task added successfully', 1);
+
     } else {
-      showSnackBarMessage(
-        context,
-        response.errorMessage.toString(),
-        1,
-        isError: true,
-      );
+      showSnackBarMessage(context, response.errorMessage.toString(), 1, isError: true);
     }
   }
 

@@ -1,7 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:task_manager/data/models/login_model.dart';
 import 'package:task_manager/data/service/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
@@ -12,7 +11,6 @@ import 'package:task_manager/ui/widgets/centered_circular_progress_indicator.dar
 import 'package:task_manager/ui/widgets/main_bottom_nav_screen.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/snack_bar_message.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isObscure = true;
   bool _loginInProgress = false;
 
+  // TODO: Validate form(Email & Password)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
