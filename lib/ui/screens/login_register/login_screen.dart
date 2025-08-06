@@ -1,10 +1,12 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager/data/models/login_model.dart';
 import 'package:task_manager/data/service/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/controllers/auth_controller.dart';
+import 'package:task_manager/ui/controllers/login_controller.dart';
 import 'package:task_manager/ui/screens/forgot_password/verify_email_screen.dart';
 import 'package:task_manager/ui/screens/login_register/register_screen.dart';
 import 'package:task_manager/ui/widgets/centered_circular_progress_indicator.dart';
@@ -24,7 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isObscure = true;
-  bool _loginInProgress = false;
+
+  final LoginController _loginController = Get.find<LoginController>();
 
   // TODO: Validate form(Email & Password)
   @override
@@ -96,16 +99,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(
                     height: 16,
                   ),
-                  Visibility(
-                    visible: _loginInProgress == false,
-                    replacement: const CenteredCircularProgressIndicator(),
-                    child: ElevatedButton(
-                        onPressed: _onTapSignInButton,
-                        child: Icon(
-                          Icons.arrow_circle_right_outlined,
-                          color: Colors.white,
-                          size: 24,
-                        )),
+                  GetBuilder<LoginController>(
+                    builder: (controller) {
+                      return Visibility(
+                        visible: controller.loginInProgress == false,
+                        replacement: const CenteredCircularProgressIndicator(),
+                        child: ElevatedButton(
+                            onPressed: _onTapSignInButton,
+                            child: Icon(
+                              Icons.arrow_circle_right_outlined,
+                              color: Colors.white,
+                              size: 24,
+                            )),
+                      );
+                    }
                   ),
                   SizedBox(height: 32),
                   Center(
@@ -151,29 +158,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    setState(() {
-      _loginInProgress = true;
-    });
-
-    Map<String, dynamic> requestBody = {
-      "email": _emailEController.text.trim(),
-      "password": _passwordEController.text,
-    };
-
-    NetworkResponse response = await NetworkClient.postRequest(
-      url: Urls.loginUrl,
-      body: requestBody,
+    final bool isSuccess = await _loginController.login(
+        _emailEController.text.trim(),
+        _passwordEController.text
     );
 
-    if (response.isSuccess) {
-      setState(() {
-        _loginInProgress = false;
-      });
-
-      // TODO: Save token to SharedPreferences
-      LoginModel loginModel = LoginModel.fromJson(response.data!);
-      AuthController.saveUserInformation(
-          loginModel.token, loginModel.userModel);
+    if (isSuccess) {
 
       showSnackBarMessage(context, 'Login Successful', 2, isError: false);
 
@@ -182,12 +172,10 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (context) => const MainBottomNavScreen()),
         (pre) => false,
       );
-    } else {
-      setState(() {
-        _loginInProgress = false;
-      });
 
-      showSnackBarMessage(context, response.errorMessage.toString(), 2,
+    } else {
+
+      showSnackBarMessage(context, _loginController.errorMessage!.toString(), 2,
           isError: true);
     }
   }
